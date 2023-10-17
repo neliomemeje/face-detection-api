@@ -89,7 +89,7 @@ const removeNotVerifiedUser = (knex) => {
 };
 
 const sendVerificationEmail = ({ id, email, name }, res) => {
-  const currentUrl = "http://localhost:3001/";
+  const currentUrl = "https://smart-brain-api-rqbk.onrender.com/";
   const message = {
     from: EMAIL,
     to: email,
