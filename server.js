@@ -10,11 +10,13 @@ const forgotPassword = require("./controllers/forgotPassword");
 const knex = require("knex")({
   client: "pg",
   connection: {
-    host: "127.0.0.1",
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+    host: process.env.DATABASE_HOST,
     port: 5432,
-    user: "postgres",
-    password: "kean",
-    database: "smart-brain",
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PW,
+    database: process.env.DATABASE_DB,
   },
 });
 const upload = require("./fileUpload");
