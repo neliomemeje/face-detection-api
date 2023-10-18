@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import { user } from "../env.js";
 
-let emailVerificationTime = null;
+let emailVerificationTime = 0;
 
 const config = {
   service: "gmail",
@@ -73,14 +73,10 @@ const removeNotVerifiedUser = (db) => {
       return db
         .select("*")
         .from("users")
-        .where("verified", "=", false)
+        .where("verified", false)
         .del()
         .then(() => {
-          return db
-            .select("*")
-            .from("login")
-            .where("verified", "=", false)
-            .del();
+          return db.select("*").from("login").where("verified", false).del();
         })
         .catch(() => {
           console.log("User was not deleted.");
