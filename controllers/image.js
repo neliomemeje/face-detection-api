@@ -1,8 +1,8 @@
 import fetch from "node-fetch";
 
 const clarifaiSetup = (imageUrl) => {
-  const PAT = API_CLARIFAI;
-  const USER_ID = "ui8i7ggow7tm";
+  const PAT = process.env.API_CLARIFAI;
+  const USER_ID = process.env.CLARIFAI_USER_ID;
   const APP_ID = "test";
   const IMAGE_URL = imageUrl;
   const raw = JSON.stringify({
