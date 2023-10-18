@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
+import { EMAIL, PASSWORD } from "../env.js";
 
-const { EMAIL, PASSWORD } = require("../env.js");
 let emailVerificationTime = null;
 
 const config = {
