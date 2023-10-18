@@ -1,5 +1,5 @@
 const clarifaiSetup = (imageUrl) => {
-  const PAT = "1f4aeaceced7408984eb3d2959b8fc77";
+  const PAT = API_CLARIFAI;
   const USER_ID = "ui8i7ggow7tm";
   const APP_ID = "test";
   const IMAGE_URL = imageUrl;
@@ -31,11 +31,10 @@ const clarifaiSetup = (imageUrl) => {
 };
 
 const handleApiCall = (req, res) => {
-  global
-    .fetch(
-      "https://api.clarifai.com/v2/models/face-detection/outputs",
-      clarifaiSetup(req.body.input)
-    )
+  fetch(
+    "https://api.clarifai.com/v2/models/face-detection/outputs",
+    clarifaiSetup(req.body.input)
+  )
     .then((response) => response.json())
     .then((result) => {
       res.json(result);
