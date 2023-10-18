@@ -73,7 +73,7 @@ const removeNotVerifiedUser = (db, email) => {
       return db
         .select("*")
         .from("users")
-        .returning("email")
+        .returning("verified")
         .then((user) => {
           const isVerified = user[0].verified;
           if (!isVerified) {
@@ -88,6 +88,9 @@ const removeNotVerifiedUser = (db, email) => {
                   .from("login")
                   .where("email", "=", email)
                   .del();
+              })
+              .catch(() => {
+                console.log("Error deleting user.");
               });
           }
         })
