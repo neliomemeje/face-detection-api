@@ -25,7 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use("/image", express.static(__dirname + "/storage"));
-app.get("/user/verify/:id/:name", register.handleVerificationEmail(knex));
+app.get("/user/verify/:id", register.handleVerificationEmail(knex));
 app.get("/user/isVerified", (req, res) => {
   res.sendFile(path.join(__dirname + "/verified.html"));
 });

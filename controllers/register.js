@@ -88,14 +88,14 @@ const removeNotVerifiedUser = (knex) => {
   }, 1000);
 };
 
-const sendVerificationEmail = ({ id, email, name }, res) => {
+const sendVerificationEmail = ({ id, email }, res) => {
   const currentUrl = "https://smart-brain-api-rqbk.onrender.com/";
   const message = {
     from: EMAIL,
     to: email,
     subject: "Verify your email",
     html: `<p>Click this link to <a href=${
-      currentUrl + "user/verify/" + id + "/" + name
+      currentUrl + "user/verify/" + id
     }>verify<a/> your email.</p>
    <p>This link <b>expires in 2 hours</b></p>`,
   };
@@ -111,7 +111,7 @@ const sendVerificationEmail = ({ id, email, name }, res) => {
 };
 
 const handleVerificationEmail = (knex) => (req, res) => {
-  const { id, name } = req.params;
+  const { id } = req.params;
 
   if (emailVerificationTime < 0) {
     res.redirect("/user/expiredVerification");
@@ -126,7 +126,7 @@ const handleVerificationEmail = (knex) => (req, res) => {
         return knex
           .select("*")
           .from("login")
-          .where("name", "=", name)
+          .where("name", "=", id)
           .update("verified", true);
       })
       .catch(() => {
