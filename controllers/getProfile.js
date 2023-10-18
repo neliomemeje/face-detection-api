@@ -1,7 +1,6 @@
-export const handleGetProfile = (knex) => (req, res) => {
+export const handleGetProfile = (db) => (req, res) => {
   const { id } = req.params;
-  knex
-    .select("*")
+  db.select("*")
     .from("users")
     .where({
       id,
@@ -18,15 +17,14 @@ export const handleGetProfile = (knex) => (req, res) => {
     });
 };
 
-export const deleteAccount = (knex) => (req, res) => {
+export const deleteAccount = (db) => (req, res) => {
   const { email } = req.params;
-  knex
-    .select("*")
+  db.select("*")
     .from("users")
     .where("email", "=", email)
     .del()
     .then(() => {
-      return knex
+      return db
         .select("*")
         .from("login")
         .where("email", "=", email)
@@ -40,7 +38,7 @@ export const deleteAccount = (knex) => (req, res) => {
     });
 };
 
-export const editProfile = (knex, bcrypt) => (req, res) => {
+export const editProfile = (db, bcrypt) => (req, res) => {
   const { name, password } = req.body;
   const hash = bcrypt.hashSync(password);
   const passwordFormat =
@@ -55,15 +53,14 @@ export const editProfile = (knex, bcrypt) => (req, res) => {
         "Password must be at least 8 characters long, one uppercase, one digit, and one symbol.",
     });
   }
-  knex
-    .select("*")
+  db.select("*")
     .from("users")
     .where("email", "=", req.params.email)
     .update({
       name: name,
     })
     .then(() => {
-      return knex
+      return db
         .select("*")
         .from("login")
         .where("email", "=", req.params.email)

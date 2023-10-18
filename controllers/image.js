@@ -44,9 +44,9 @@ export const handleApiCall = (req, res) => {
     });
 };
 
-export const handleImage = (knex) => (req, res) => {
+export const handleImage = (db) => (req, res) => {
   const { id } = req.body;
-  knex("users")
+  db("users")
     .where("id", "=", id)
     .increment("entries", 1)
     .returning("entries")

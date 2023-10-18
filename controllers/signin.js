@@ -1,9 +1,9 @@
-export const handleSignin = (knex, bcrypt) => (req, res) => {
+export const handleSignin = (db, bcrypt) => (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ message: "All fields must not be empty." });
   }
-  knex("users")
+  db("users")
     .select("*")
     .from("login")
     .where("email", "=", email)
@@ -11,7 +11,7 @@ export const handleSignin = (knex, bcrypt) => (req, res) => {
       const isVerified = data[0].verified;
       const isValid = bcrypt.compareSync(password, data[0].hash);
       if (isValid && isVerified) {
-        return knex
+        return db
           .select("*")
           .from("users")
           .where("email", "=", email)

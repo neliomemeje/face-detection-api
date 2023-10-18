@@ -12,7 +12,7 @@ const config = {
 };
 const transporter = nodemailer.createTransport(config);
 
-export const handleRegister = (knex, bcrypt) => (req, res) => {
+export const handleRegister = (db, bcrypt) => (req, res) => {
   const { name, email, password } = req.body;
   const mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   const passwordFormat =
@@ -31,7 +31,7 @@ export const handleRegister = (knex, bcrypt) => (req, res) => {
   }
 
   const hash = bcrypt.hashSync(password);
-  knex.transaction((trx) => {
+  db.transaction((trx) => {
     trx
       .insert({
         hash: hash,
@@ -60,30 +60,30 @@ export const handleRegister = (knex, bcrypt) => (req, res) => {
         res.status(400).json({ message: err.detail });
       });
   });
-  removeNotVerifiedUser(knex, email);
+  removeNotVerifiedUser(db, email);
 };
 
-const removeNotVerifiedUser = (knex, email) => {
+const removeNotVerifiedUser = (db, email) => {
   const time = Date.now() + 7200000;
   const x = setInterval(function () {
     const now = Date.now();
     emailVerificationTime = (time - now) / 1000;
     if (emailVerificationTime < 0) {
       clearInterval(x);
-      return knex
+      return db
         .select("*")
         .from("users")
         .returning("email")
         .then((user) => {
           const isVerified = user[0].verified;
           if (!isVerified) {
-            return knex
+            return db
               .select("*")
               .from("users")
               .where("email", "=", email)
               .del()
               .then(() => {
-                return knex
+                return db
                   .select("*")
                   .from("login")
                   .where("email", "=", email)
@@ -120,23 +120,23 @@ const sendVerificationEmail = ({ id, email }, res) => {
     });
 };
 
-export const handleVerificationEmail = (knex) => (req, res) => {
+export const handleVerificationEmail = (db) => (req, res) => {
   const { id } = req.params;
 
   if (emailVerificationTime < 0) {
     res.redirect("/user/expiredVerification");
   } else {
     res.redirect("/user/isVerified");
-    return knex
+    return db
       .select("*")
       .from("users")
       .where("id", "=", id)
       .update("verified", true)
       .then(() => {
-        return knex
+        return db
           .select("*")
           .from("login")
-          .where("name", "=", id)
+          .where("id", "=", id)
           .update("verified", true);
       })
       .catch(() => {
@@ -145,7 +145,7 @@ export const handleVerificationEmail = (knex) => (req, res) => {
   }
 };
 
-export const handleProfileImage = (knex) => (req, res) => {
+export const handleProfileImage = (db) => (req, res) => {
   const { id } = req.params;
   const reqBody = req.body;
 
@@ -156,8 +156,7 @@ export const handleProfileImage = (knex) => (req, res) => {
   reqBody.usersimage = image;
   const userImage = reqBody.usersimage.toString();
 
-  knex
-    .select("*")
+  db.select("*")
     .from("users")
     .where("id", "=", id)
     .update("usersimage", userImage)

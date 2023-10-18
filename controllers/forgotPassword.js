@@ -1,4 +1,4 @@
-export const handleForgotPassword = (knex, bcrypt) => (req, res) => {
+export const handleForgotPassword = (db, bcrypt) => (req, res) => {
   const { email, password } = req.body;
   const passwordFormat =
     /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*#?&^_-]).{8,}/;
@@ -12,7 +12,7 @@ export const handleForgotPassword = (knex, bcrypt) => (req, res) => {
     });
   }
   const hash = bcrypt.hashSync(password);
-  knex("users")
+  db("users")
     .select("*")
     .from("login")
     .where("email", "=", email)
@@ -23,13 +23,13 @@ export const handleForgotPassword = (knex, bcrypt) => (req, res) => {
           message: "Email hasn't been verified. Check your email to continue.",
         });
       } else {
-        return knex
+        return db
           .select("*")
           .from("login")
           .where("email", "=", email)
           .update("hash", hash)
           .then(() => {
-            return knex
+            return db
               .select("*")
               .from("users")
               .where("email", "=", email)
