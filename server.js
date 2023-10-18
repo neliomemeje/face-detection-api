@@ -29,7 +29,7 @@ knex({
     database: process.env.DATABASE_DB,
   },
 });
-const upload = require("./fileUpload");
+import { upload } from "./fileUpload.js";
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

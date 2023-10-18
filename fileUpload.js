@@ -1,5 +1,5 @@
-const path = require("path");
-const multer = require("multer");
+import path from "path";
+import multer from "multer";
 
 const storage = (destination) =>
   multer.diskStorage({
@@ -12,7 +12,7 @@ const storage = (destination) =>
       );
     },
   });
-const upload = (destination) =>
+export const upload = (destination) =>
   multer({
     storage: storage(destination),
     limits: {
@@ -31,5 +31,3 @@ const upload = (destination) =>
       }
     },
   }).single("userImage");
-
-module.exports = upload;
