@@ -1,7 +1,7 @@
-import express from("express")
-import cors from ("cors")
-import path from ("path")
-import bcrypt from ("bcrypt-nodejs")
+import express from "express";
+import cors from "cors";
+import path from "path";
+import bcrypt from "bcrypt-nodejs";
 import {
   handleRegister,
   handleVerificationEmail,
@@ -15,7 +15,9 @@ import {
 } from "./controllers/getProfile.js";
 import { handleApiCall, handleImage } from "./controllers/image.js";
 import { handleForgotPassword } from "./controllers/forgotPassword.js";
-import knex from ("knex")({
+import knex from "knex";
+
+knex({
   client: "pg",
   connection: {
     connectionString: process.env.DATABASE_URL,
