@@ -1,5 +1,5 @@
 const clarifaiSetup = (imageUrl) => {
-  const PAT = process.env.API_CLARIFAI;
+  const PAT = "1f4aeaceced7408984eb3d2959b8fc77";
   const USER_ID = "ui8i7ggow7tm";
   const APP_ID = "test";
   const IMAGE_URL = imageUrl;
