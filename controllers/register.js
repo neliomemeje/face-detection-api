@@ -52,6 +52,7 @@ export const handleRegister = (db, bcrypt) => (req, res) => {
           .returning("*")
           .then((user) => {
             sendVerificationEmail(user[0], res);
+            removeNotVerifiedUser(db);
           })
           .then(trx.commit)
           .catch(trx.rollback);
@@ -60,10 +61,9 @@ export const handleRegister = (db, bcrypt) => (req, res) => {
         res.status(400).json({ message: err.detail });
       });
   });
-  removeNotVerifiedUser(db, email);
 };
 
-const removeNotVerifiedUser = (db, email) => {
+const removeNotVerifiedUser = (db) => {
   const time = Date.now() + 7200000;
   const x = setInterval(function () {
     const now = Date.now();
@@ -73,29 +73,17 @@ const removeNotVerifiedUser = (db, email) => {
       return db
         .select("*")
         .from("users")
-        .returning("verified")
-        .then((user) => {
-          const isVerified = user[0].verified;
-          if (!isVerified) {
-            return db
-              .select("*")
-              .from("users")
-              .where("email", "=", email)
-              .del()
-              .then(() => {
-                return db
-                  .select("*")
-                  .from("login")
-                  .where("email", "=", email)
-                  .del();
-              })
-              .catch(() => {
-                console.log("Error deleting user.");
-              });
-          }
+        .where("verified", "=", false)
+        .del()
+        .then(() => {
+          return db
+            .select("*")
+            .from("login")
+            .where("verified", "=", false)
+            .del();
         })
         .catch(() => {
-          console.log("Error getting user from users.");
+          console.log("User was not deleted.");
         });
     }
   }, 1000);
