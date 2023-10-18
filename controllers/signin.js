@@ -1,4 +1,4 @@
-const handleSignin = (knex, bcrypt) => (req, res) => {
+export const handleSignin = (knex, bcrypt) => (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ message: "All fields must not be empty." });
@@ -28,8 +28,4 @@ const handleSignin = (knex, bcrypt) => (req, res) => {
     .catch((err) => {
       res.status(400).json({ message: "User doesn't exist." });
     });
-};
-
-module.exports = {
-  handleSignin,
 };

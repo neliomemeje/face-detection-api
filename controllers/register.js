@@ -11,7 +11,7 @@ const config = {
 };
 const transporter = nodemailer.createTransport(config);
 
-const handleRegister = (knex, bcrypt) => (req, res) => {
+export const handleRegister = (knex, bcrypt) => (req, res) => {
   const { name, email, password } = req.body;
   const mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   const passwordFormat =
@@ -119,7 +119,7 @@ const sendVerificationEmail = ({ id, email }, res) => {
     });
 };
 
-const handleVerificationEmail = (knex) => (req, res) => {
+export const handleVerificationEmail = (knex) => (req, res) => {
   const { id } = req.params;
 
   if (emailVerificationTime < 0) {
@@ -144,7 +144,7 @@ const handleVerificationEmail = (knex) => (req, res) => {
   }
 };
 
-const handleProfileImage = (knex) => (req, res) => {
+export const handleProfileImage = (knex) => (req, res) => {
   const { id } = req.params;
   const reqBody = req.body;
 
@@ -167,10 +167,4 @@ const handleProfileImage = (knex) => (req, res) => {
     .catch(() => {
       res.status(400).json("Error updating image.");
     });
-};
-
-module.exports = {
-  handleRegister,
-  handleProfileImage,
-  handleVerificationEmail,
 };

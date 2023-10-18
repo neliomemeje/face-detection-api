@@ -1,4 +1,4 @@
-const handleForgotPassword = (knex, bcrypt) => (req, res) => {
+export const handleForgotPassword = (knex, bcrypt) => (req, res) => {
   const { email, password } = req.body;
   const passwordFormat =
     /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*#?&^_-]).{8,}/;
@@ -45,8 +45,4 @@ const handleForgotPassword = (knex, bcrypt) => (req, res) => {
     .catch(() => {
       res.status(400).json({ message: "User doesn't exist." });
     });
-};
-
-module.exports = {
-  handleForgotPassword,
 };

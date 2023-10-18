@@ -1,4 +1,4 @@
-const handleGetProfile = (knex) => (req, res) => {
+export const handleGetProfile = (knex) => (req, res) => {
   const { id } = req.params;
   knex
     .select("*")
@@ -18,7 +18,7 @@ const handleGetProfile = (knex) => (req, res) => {
     });
 };
 
-const deleteAccount = (knex) => (req, res) => {
+export const deleteAccount = (knex) => (req, res) => {
   const { email } = req.params;
   knex
     .select("*")
@@ -40,7 +40,7 @@ const deleteAccount = (knex) => (req, res) => {
     });
 };
 
-const editProfile = (knex, bcrypt) => (req, res) => {
+export const editProfile = (knex, bcrypt) => (req, res) => {
   const { name, password } = req.body;
   const hash = bcrypt.hashSync(password);
   const passwordFormat =
@@ -81,10 +81,4 @@ const editProfile = (knex, bcrypt) => (req, res) => {
     .catch(() => {
       res.status(400).json("Error updating.");
     });
-};
-
-module.exports = {
-  handleGetProfile,
-  deleteAccount,
-  editProfile,
 };

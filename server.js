@@ -2,11 +2,20 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const bcrypt = require("bcrypt-nodejs");
-const signin = require("./controllers/signin");
-const register = require("./controllers/register");
-const getProfile = require("./controllers/getProfile");
-const image = require("./controllers/image");
-const forgotPassword = require("./controllers/forgotPassword");
+import {
+  handleRegister,
+  handleVerificationEmail,
+  handleProfileImage,
+} from "./controllers/register.js";
+import handleSignin from "./controllers/signin.js";
+import {
+  handleGetProfile,
+  deleteAccount,
+  editProfile,
+} from "./controllers/getProfile.js";
+import { handleApiCall, handleImage } from "./controllers/image.js";
+import handleForgotPassword from "./controllers/forgotPassword.js";
+
 const knex = require("knex")({
   client: "pg",
   connection: {
@@ -25,26 +34,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use("/image", express.static(__dirname + "/storage"));
-app.get("/user/verify/:id", register.handleVerificationEmail(knex));
+app.get("/user/verify/:id", handleVerificationEmail(knex));
 app.get("/user/isVerified", (req, res) => {
   res.sendFile(path.join(__dirname + "/verified.html"));
 });
 app.get("/user/expiredVerification", (req, res) => {
   res.sendFile(path.join(__dirname + "/expiredVerification.html"));
 });
-app.post("/signin", signin.handleSignin(knex, bcrypt));
-app.post("/register", register.handleRegister(knex, bcrypt));
+app.post("/signin", handleSignin(knex, bcrypt));
+app.post("/register", handleRegister(knex, bcrypt));
 app.put(
   "/profileimage/:id",
   upload("./storage/images"),
-  register.handleProfileImage(knex)
+  handleProfileImage(knex)
 );
-app.get("/profile/:id", getProfile.handleGetProfile(knex));
-app.put("/profile/:email", getProfile.deleteAccount(knex));
-app.put("/editprofile/:email", getProfile.editProfile(knex, bcrypt));
-app.put("/forgotpassword", forgotPassword.handleForgotPassword(knex, bcrypt));
-app.put("/image", image.handleImage(knex));
-app.post("/imageurl", (req, res) => image.handleApiCall(req, res));
+app.get("/profile/:id", handleGetProfile(knex));
+app.put("/profile/:email", deleteAccount(knex));
+app.put("/editprofile/:email", editProfile(knex, bcrypt));
+app.put("/forgotpassword", handleForgotPassword(knex, bcrypt));
+app.put("/image", handleImage(knex));
+app.post("/imageurl", (req, res) => handleApiCall(req, res));
 app.listen(process.env.PORT || 3000, () => {
   console.log(`port is listening to port ${process.env.PORT}`);
 });
