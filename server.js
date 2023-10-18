@@ -7,14 +7,14 @@ import {
   handleVerificationEmail,
   handleProfileImage,
 } from "./controllers/register.js";
-import handleSignin from "./controllers/signin.js";
+import { handleSignin } from "./controllers/signin.js";
 import {
   handleGetProfile,
   deleteAccount,
   editProfile,
 } from "./controllers/getProfile.js";
 import { handleApiCall, handleImage } from "./controllers/image.js";
-import handleForgotPassword from "./controllers/forgotPassword.js";
+import { handleForgotPassword } from "./controllers/forgotPassword.js";
 
 const knex = require("knex")({
   client: "pg",
