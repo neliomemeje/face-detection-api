@@ -1,13 +1,13 @@
 import nodemailer from "nodemailer";
-import { EMAIL, PASSWORD } from "../env.js";
+import { user } from "../env.js";
 
 let emailVerificationTime = null;
 
 const config = {
   service: "gmail",
   auth: {
-    user: EMAIL,
-    pass: PASSWORD,
+    user: user.EMAIL,
+    pass: user.PASSWORD,
   },
 };
 const transporter = nodemailer.createTransport(config);
@@ -101,7 +101,7 @@ const removeNotVerifiedUser = (knex, email) => {
 const sendVerificationEmail = ({ id, email }, res) => {
   const currentUrl = "https://smart-brain-api-rqbk.onrender.com/";
   const message = {
-    from: EMAIL,
+    from: user.EMAIL,
     to: email,
     subject: "Verify your email",
     html: `<p>Click this link to <a href=${
