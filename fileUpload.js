@@ -4,7 +4,6 @@ import multer from "multer";
 const storage = (destination) =>
   multer.diskStorage({
     destination: destination,
-
     filename: (req, file, cb) => {
       return cb(
         null,
