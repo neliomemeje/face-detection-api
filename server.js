@@ -45,6 +45,6 @@ app.put("/editprofile/:email", getProfile.editProfile(knex, bcrypt));
 app.put("/forgotpassword", forgotPassword.handleForgotPassword(knex, bcrypt));
 app.put("/image", image.handleImage(knex));
 app.post("/imageurl", (req, res) => image.handleApiCall(req, res));
-app.listen(3001, () => {
-  console.log("port is listening to port 3001");
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`port is listening to port ${process.env.PORT}`);
 });
