@@ -59,10 +59,10 @@ const handleRegister = (knex, bcrypt) => (req, res) => {
         res.status(400).json({ message: err.detail });
       });
   });
-  removeNotVerifiedUser(knex);
+  removeNotVerifiedUser(knex, email);
 };
 
-const removeNotVerifiedUser = (knex) => {
+const removeNotVerifiedUser = (knex, email) => {
   const time = Date.now() + 7200000;
   const x = setInterval(function () {
     const now = Date.now();
@@ -72,14 +72,23 @@ const removeNotVerifiedUser = (knex) => {
       return knex
         .select("*")
         .from("users")
-        .where("verified", "=", false)
-        .del()
-        .then(() => {
-          return knex
-            .select("*")
-            .from("login")
-            .where("verified", "=", false)
-            .del();
+        .returning("email")
+        .then((user) => {
+          const isVerified = user[0].verified;
+          if (!isVerified) {
+            return knex
+              .select("*")
+              .from("users")
+              .where("email", "=", email)
+              .del()
+              .then(() => {
+                return knex
+                  .select("*")
+                  .from("login")
+                  .where("email", "=", email)
+                  .del();
+              });
+          }
         })
         .catch(() => {
           console.log("Error getting user from users.");
