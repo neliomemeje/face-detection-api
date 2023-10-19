@@ -63,7 +63,7 @@ export const handleRegister = (db, bcrypt) => (req, res) => {
 };
 
 const sendVerificationEmail = ({ id, email }, res) => {
-  jwt.sign({ id: id }, secret, { expiresIn: 10 }, (err, token) => {
+  jwt.sign({ id: id }, secret, { expiresIn: "2h" }, (err, token) => {
     const urlLink = `https://smart-brain-api-rqbk.onrender.com/user/verify/${id}/${token}`;
     const message = {
       from: user.EMAIL,
