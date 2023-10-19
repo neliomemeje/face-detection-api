@@ -51,7 +51,7 @@ export const handleRegister = (db, bcrypt) => (req, res) => {
           })
           .returning("*")
           .then((user) => {
-            sendVerificationEmail(user[0], res, db);
+            sendVerificationEmail(user[0], res);
           })
           .then(trx.commit)
           .catch(trx.rollback);
@@ -60,6 +60,7 @@ export const handleRegister = (db, bcrypt) => (req, res) => {
         res.status(400).json({ message: err.detail });
       });
   });
+  removeNotVerifiedUser(db);
 };
 
 const removeNotVerifiedUser = (db) => {
@@ -73,6 +74,7 @@ const removeNotVerifiedUser = (db) => {
         .where("verified", false)
         .del()
         .then(() => {
+          console.log("user deleted");
           return db("login").where("verified", false).del();
         })
         .catch(() => {
@@ -82,7 +84,7 @@ const removeNotVerifiedUser = (db) => {
   }, 1000);
 };
 
-const sendVerificationEmail = ({ id, email }, res, db) => {
+const sendVerificationEmail = ({ id, email }, res) => {
   const currentUrl = "https://smart-brain-api-rqbk.onrender.com/";
   const message = {
     from: user.EMAIL,
@@ -102,7 +104,6 @@ const sendVerificationEmail = ({ id, email }, res, db) => {
     .catch(() => {
       res.status(400).json({ message: "Error while sending the email" });
     });
-  removeNotVerifiedUser(db);
 };
 
 export const handleVerificationEmail = (db) => (req, res) => {
