@@ -52,7 +52,6 @@ export const handleRegister = (db, bcrypt) => (req, res) => {
           .returning("*")
           .then((user) => {
             sendVerificationEmail(user[0], res);
-            removeNotVerifiedUser(db);
           })
           .then(trx.commit)
           .catch(trx.rollback);
@@ -60,22 +59,6 @@ export const handleRegister = (db, bcrypt) => (req, res) => {
       .catch((err) => {
         res.status(400).json({ message: err.detail });
       });
-  });
-};
-
-const removeNotVerifiedUser = (db) => {
-  jwt.verify(token, secret, (err, res) => {
-    if (err) {
-      return db("users")
-        .where("verified", false)
-        .del()
-        .then(() => {
-          return db("login").where("verified", false).del();
-        })
-        .catch(() => {
-          console.log("User was not deleted.");
-        });
-    }
   });
 };
 
@@ -108,6 +91,15 @@ export const handleVerificationEmail = (db) => (req, res) => {
   jwt.verify(token, secret, (err, res) => {
     if (err) {
       res.redirect("/user/expiredVerification");
+      return db("users")
+        .where("verified", false)
+        .del()
+        .then(() => {
+          return db("login").where("verified", false).del();
+        })
+        .catch(() => {
+          res.status(400).json({ message: "User was not deleted." });
+        });
     } else {
       res.redirect("/user/isVerified");
       return db
