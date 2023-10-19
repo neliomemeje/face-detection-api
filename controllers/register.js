@@ -64,15 +64,13 @@ export const handleRegister = (db, bcrypt) => (req, res) => {
 
 const sendVerificationEmail = ({ id, email }, res) => {
   jwt.sign({ id: id }, secret, { expiresIn: "2h" }, (err, token) => {
-    const currentUrl = "https://smart-brain-api-rqbk.onrender.com/";
+    const urlLink = `https://smart-brain-api-rqbk.onrender.com/user/verify/${id}/${token}`;
     const message = {
       from: user.EMAIL,
       to: email,
       subject: "Verify your email",
-      html: `<p>Click this link to <a href=${
-        currentUrl + "user/verify/" + id + token
-      }>verify<a/> your email.</p>
-   <p>This link <b>expires in 2 hours</b></p>`,
+      html: `<p>Click this link <a href=${urlLink}>${urlLink}<a/>to verify your email.</p>
+   <p>This link <b>expires in 2 hours.</b></p>`,
     };
 
     transporter
