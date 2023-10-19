@@ -1,4 +1,4 @@
 export const user = {
-  EMAIL: "neliomemeje4@gmail.com",
-  PASSWORD: "sssv sfkp iqlx huxw",
+  EMAIL: process.env.MY_EMAIL,
+  PASSWORD: process.env.EMAIL_PW,
 };

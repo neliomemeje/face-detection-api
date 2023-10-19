@@ -1,8 +1,8 @@
 import nodemailer from "nodemailer";
 import { user } from "../env.js";
+import jwt from "jsonwebtoken";
 
-let emailVerificationTime = 0;
-
+const secret = process.env.JWT_SECRET;
 const config = {
   service: "gmail",
   auth: {
@@ -52,6 +52,7 @@ export const handleRegister = (db, bcrypt) => (req, res) => {
           .returning("*")
           .then((user) => {
             sendVerificationEmail(user[0], res);
+            removeNotVerifiedUser(db);
           })
           .then(trx.commit)
           .catch(trx.rollback);
@@ -60,76 +61,72 @@ export const handleRegister = (db, bcrypt) => (req, res) => {
         res.status(400).json({ message: err.detail });
       });
   });
-  removeNotVerifiedUser(db);
 };
 
 const removeNotVerifiedUser = (db) => {
-  const time = Date.now() + 7200000;
-  const x = setInterval(function () {
-    const now = Date.now();
-    emailVerificationTime = (time - now) / 1000;
-    if (emailVerificationTime < 0) {
-      console.log("is time up?");
-      clearInterval(x);
+  jwt.verify(token, secret, (err, res) => {
+    if (err) {
       return db("users")
         .where("verified", false)
         .del()
         .then(() => {
-          console.log("did you reach here?");
           return db("login").where("verified", false).del();
         })
         .catch(() => {
           console.log("User was not deleted.");
         });
     }
-  }, 1000);
+  });
 };
 
 const sendVerificationEmail = ({ id, email }, res) => {
-  const currentUrl = "https://smart-brain-api-rqbk.onrender.com/";
-  const message = {
-    from: user.EMAIL,
-    to: email,
-    subject: "Verify your email",
-    html: `<p>Click this link to <a href=${
-      currentUrl + "user/verify/" + id
-    }>verify<a/> your email.</p>
+  jwt.sign({ id: id }, secret, { expiresIn: "2h" }, (err, token) => {
+    const currentUrl = "https://smart-brain-api-rqbk.onrender.com/";
+    const message = {
+      from: user.EMAIL,
+      to: email,
+      subject: "Verify your email",
+      html: `<p>Click this link to <a href=${
+        currentUrl + "user/verify/" + id + token
+      }>verify<a/> your email.</p>
    <p>This link <b>expires in 2 hours</b></p>`,
-  };
+    };
 
-  transporter
-    .sendMail(message)
-    .then(() => {
-      res.json({ message: "Check your email to verify your account." });
-    })
-    .catch(() => {
-      res.status(400).json({ message: "Error while sending the email" });
-    });
+    transporter
+      .sendMail(message)
+      .then(() => {
+        res.json({ message: "Check your email to verify your account." });
+      })
+      .catch(() => {
+        res.status(400).json({ message: "Error while sending the email" });
+      });
+  });
 };
 
 export const handleVerificationEmail = (db) => (req, res) => {
-  const { id } = req.params;
-
-  if (emailVerificationTime < 0) {
-    res.redirect("/user/expiredVerification");
-  } else {
-    res.redirect("/user/isVerified");
-    return db
-      .select("*")
-      .from("users")
-      .where("id", "=", id)
-      .update("verified", true)
-      .then(() => {
-        return db
-          .select("*")
-          .from("login")
-          .where("id", "=", id)
-          .update("verified", true);
-      })
-      .catch(() => {
-        res.status(400).json({ message: "Error getting user." });
-      });
-  }
+  const { id, token } = req.params;
+  jwt.verify(token, secret, (err, res) => {
+    if (err) {
+      res.redirect("/user/expiredVerification");
+    } else {
+      res.redirect("/user/isVerified");
+      return db
+        .select("*")
+        .from("users")
+        .where("id", "=", id)
+        .update("verified", true)
+        .then(() => {
+          return db
+            .select("*")
+            .from("login")
+            .where("id", "=", id)
+            .update("verified", true);
+        })
+        .catch(() => {
+          res.status(400).json({ message: "Error getting user." });
+        });
+    }
+  });
 };
 
 export const handleProfileImage = (db) => (req, res) => {

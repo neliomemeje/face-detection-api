@@ -39,7 +39,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use("/image", express.static(__dirname + "/storage"));
-app.get("/user/verify/:id", handleVerificationEmail(db));
+app.get("/user/verify/:id/:token", handleVerificationEmail(db));
 app.get("/user/isVerified", (req, res) => {
   res.sendFile(path.join(__dirname + "/verified.html"));
 });
