@@ -63,13 +63,13 @@ export const handleRegister = (db, bcrypt) => (req, res) => {
 };
 
 const sendVerificationEmail = ({ id, email }, res) => {
-  jwt.sign({ id: id }, secret, { expiresIn: "2h" }, (err, token) => {
+  jwt.sign({ id: id }, secret, { expiresIn: 10 }, (err, token) => {
     const urlLink = `https://smart-brain-api-rqbk.onrender.com/user/verify/${id}/${token}`;
     const message = {
       from: user.EMAIL,
       to: email,
       subject: "Verify your email",
-      html: `<p>Click this link <a href=${urlLink}>${urlLink}<a/>to verify your email.</p>
+      html: `<p>Click this link <a href=${urlLink}>${urlLink}<a/> to verify your email.</p>
    <p>This link <b>expires in 2 hours.</b></p>`,
     };
 
@@ -86,37 +86,41 @@ const sendVerificationEmail = ({ id, email }, res) => {
 
 export const handleVerificationEmail = (db) => (req, res) => {
   const { id, token } = req.params;
-  jwt.verify(token, secret, (err, res) => {
+  const user = jwt.verify(token, secret, (err, res) => {
     if (err) {
-      res.redirect("/user/expiredVerification");
-      return db("users")
-        .where("verified", false)
-        .del()
-        .then(() => {
-          return db("login").where("verified", false).del();
-        })
-        .catch(() => {
-          res.status(400).json({ message: "User was not deleted." });
-        });
-    } else {
-      res.redirect("/user/isVerified");
-      return db
-        .select("*")
-        .from("users")
-        .where("id", "=", id)
-        .update("verified", true)
-        .then(() => {
-          return db
-            .select("*")
-            .from("login")
-            .where("id", "=", id)
-            .update("verified", true);
-        })
-        .catch(() => {
-          res.status(400).json({ message: "Error getting user." });
-        });
+      return "token expired";
     }
+    return res;
   });
+  if (user === "token expired") {
+    res.redirect("/user/expiredVerification");
+    return db("users")
+      .where("verified", false)
+      .del()
+      .then(() => {
+        return db("login").where("verified", false).del();
+      })
+      .catch(() => {
+        res.status(400).json({ message: "User was not deleted." });
+      });
+  } else {
+    res.redirect("/user/isVerified");
+    return db
+      .select("*")
+      .from("users")
+      .where("id", "=", id)
+      .update("verified", true)
+      .then(() => {
+        return db
+          .select("*")
+          .from("login")
+          .where("id", "=", id)
+          .update("verified", true);
+      })
+      .catch(() => {
+        res.status(400).json({ message: "Error getting user." });
+      });
+  }
 };
 
 export const handleProfileImage = (db) => (req, res) => {
