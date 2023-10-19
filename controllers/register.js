@@ -69,13 +69,13 @@ const removeNotVerifiedUser = (db) => {
     const now = Date.now();
     emailVerificationTime = (time - now) / 1000;
     if (emailVerificationTime < 0) {
-      console.log("time is up");
+      console.log("is time up?");
       clearInterval(x);
       return db("users")
         .where("verified", false)
         .del()
         .then(() => {
-          console.log("user deleted");
+          console.log("did you reach here?");
           return db("login").where("verified", false).del();
         })
         .catch(() => {
